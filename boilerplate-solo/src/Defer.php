@@ -12,8 +12,27 @@ class Callback {
 }
 
 class Defer {
+    private array $callbacks = [];
     public function __construct() {}
 
-    public function __destruct() {}
+    public function __destruct() {
+        echo "Destruction";
+        while ($callback = array_pop($this->callbacks)) {
+            $callback->call();
+        }
+    } 
+    
+    public function defer(callable $cb, ...$args): void {
+        $this->callbacks[] = new Callback($cb, $args); 
+    }
+
+    public static function init(): self {
+        return new self(); 
+    }
+
+    public function __invoke(callable $cb, ...$args): void {
+        $this->defer($cb, ...$args); 
+    }
 }
+
 ?>
